@@ -10,18 +10,25 @@ boolean analogControl = false;
 
 void setup()
 {
+  /*Sets the voltage reference of ADC to the external 3.3V reference
+   *to improve the Sharp sensor resolution*/
   analogReference(EXTERNAL);
+  
+  /*Sets motor contol pins and initializes UART*/
   pinMode(MOTORDIRA, OUTPUT);
   pinMode(MOTORVELA, OUTPUT);
   pinMode(BREAKA, OUTPUT);
   Serial.begin(9600);
   
+  /*Sets the motor at the maximun velocity*/
   analogWrite(MOTORVELA, 255);
 }
 
 void loop()
 {
-  /*Sólo uno descomentado*/
+  /*Uncomment only one*/
+  
+  /*See FuncionesEjemplo.ino for more details*/
   //EjemploSensor();
   //EjemploActuador();
   EjemploSensorActuador();
