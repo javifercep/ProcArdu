@@ -3,8 +3,8 @@ ProcArdu
 
 Code examples for communication between Processing and an Arduino Board
 
-For test these examples you need:
+Download the current release.
 
-	Arduino Board
-	MotorShield Board 
-	Any sensor
+Load Arduino code to an Arduino UNO (Working on other boards)
+
+Launch ProcGUI.exe
