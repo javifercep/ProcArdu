@@ -17,55 +17,46 @@ public class COMAPI {
     boolean temp=false;
     String data = Buffer.get(0);
     Buffer.remove(0);
-    if (data.startsWith("R"))
+
+    String[] process = split(data, ':');
+    char command = process[0].charAt(0);
+    int pin   = Integer.parseInt(process[1]);
+    int value = Integer.parseInt(process[2]);
+    switch(command)
     {
-      String[] process = split(data, ':');
-      if (Integer.parseInt(process[2]) == 0)
+    case DIGITAL_READ:
+      if (pin >= 0 && pin < DIGITALPINSARDUINOUNO)
+        Hard.setDigitalValue(pin, value);  
+      temp = true;   
+      break;
+    case ANALOG_READ:
+      if (pin >= 0 && pin < ANALOGPINSARDUINOUNO)
       {
-        int pin = Integer.parseInt(process[1]);
-        if (pin > 0 && pin < 14)
-        {
-          Hard.setDigitalValue(pin, LOW);
-          newinfo = false;
-        } else
-        {
-          errorInformation = "Invalid pin number!";
-          newinfo = true;
-        }
-      } else
-      {
-        int pin = Integer.parseInt(process[1]);
-        if (pin > 0 && pin < 14)
-        {
-          Hard.setDigitalValue(pin, HIGH);
-          newinfo = false;
-        } else
-        {
-          errorInformation = "Invalid pin number!";
-          newinfo = true;
-        }
+        Hard.setAnalogValue(pin, value);
       }
-      temp = true;
-    } else if (data.startsWith("A"))
-    {
-      String[] process = split(data, ':');
-      int pin = Integer.parseInt(process[1]);
-      if (pin > 0 && pin < 6)
+      temp = true; 
+      break;
+    case DIGITAL_BROADCAST:
+      for (int ii=0; ii< pin; ii++)
       {
-        Hard.setAnalogValue(pin, Integer.parseInt(process[2]));
-        newinfo = false;
-      } else
-      {
-        errorInformation = "Invalid pin number!";
-        newinfo = true;
+        Hard.setDigitalValue(ii, Integer.parseInt(process[ii+2]));
       }
-      temp = true;
-    } else if (data.startsWith("E"))
-    {
-      String[] process = split(data, ':');
-      errorInformation = process[1];
+      temp = true; 
+      break;
+    case ANALOG_BROADCAST:
+      for (int ii=0; ii< pin; ii++)
+      {
+        Hard.setAnalogValue(ii, Integer.parseInt(process[ii+2]));
+      }
+      temp = true; 
+      break;
+    case ERROR:
+      errorInformation = process[3];
       newinfo = true;
-      temp = true;
+      temp = true; 
+      break;
+    default:
+      break;
     }
     return temp;
   }
@@ -79,7 +70,7 @@ public class COMAPI {
     }
     for (int ii=0; ii < DIGITALPINSARDUINOUNO; ii++)
     {
-      if (Hard.getDigitalState(ii) == OUTPUT)
+      if (Hard.getDigitalState(ii) != NOT_CONF)
       {
         if (Hard.getDigitalValue(ii) == HIGH)
           DigitalButton[ii].setOn();

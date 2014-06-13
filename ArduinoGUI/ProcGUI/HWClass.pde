@@ -12,10 +12,7 @@ public class HWClass {
 
   public int getDigitalState(int pin)
   {
-    if (DigitalState.maxIndex() > pin && DigitalState.minIndex() <= pin)
       return DigitalState.get(pin);
-    else
-      return 5;
   }
 
   public void setDigitalState(int pin, int value)
@@ -25,10 +22,7 @@ public class HWClass {
 
   public int getDigitalValue(int pin)
   {
-    if (DigitalValue.maxIndex() > pin && DigitalValue.minIndex() <= pin)
       return DigitalValue.get(pin);
-    else 
-      return 0;
   }
 
   public void setDigitalValue(int pin, int value)
@@ -38,10 +32,7 @@ public class HWClass {
 
   public int getAnalogValue(int pin)
   {
-    if (AnalogValue.maxIndex() > pin && AnalogValue.minIndex() <= pin)
       return AnalogValue.get(pin);
-    else 
-      return 0;
   }
 
   public void setAnalogValue(int pin, int value)

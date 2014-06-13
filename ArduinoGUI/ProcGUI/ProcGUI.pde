@@ -11,13 +11,14 @@ Textarea ErrorArea;
 Textfield Escribo;
 ListBox ListaUSB, ListaConfig, ListaDigConf[];
 Slider  AnalogSlider[];
-Button DigitalButton[];
+Button DigitalButton[], AnalogButton[];
+Button UpdateAllAn, UpdateAllDig;
 HWClass Hard;
 boolean conected=false;
+boolean openConfig = false;
 
 void setup() { 
   size(800, 620);
-
   /*GUI Objects*/
   setInterface();
 } 
@@ -29,18 +30,24 @@ void draw() {
     COM.getDataFromBuffer();
     COM.showData();
   }
-  //InterfaceUpdate();
+  InterfaceUpdate();
   delay(100);
 }
 
 void serialEvent(Serial myPort) {
-    dataReceived = myPort.readStringUntil('\n');
-  //println(dataReceived.length());
-
-  if (dataReceived != null)
+  if (openConfig)
   {
-    COM.addtoBuffer(dataReceived);
-    dataReceived = null;
+    dataReceived = myPort.readStringUntil('\n');
+    //println(dataReceived.length());
+    if (dataReceived != null)
+    {
+      COM.addtoBuffer(dataReceived);
+      dataReceived = null;
+    }
+  }
+  else
+  {
+    myPort.clear();
   }
 }
 

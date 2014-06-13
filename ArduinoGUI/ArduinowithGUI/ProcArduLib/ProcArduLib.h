@@ -21,7 +21,17 @@
 //#define DEBUG 		1
 
 #define NUMANPINS		6
-#define SERIALBAUDRATE	9600
+#define NUMDIGPINS		14
+#define PINBROADCAST	0xFF
+
+/* COMMANDS Defines */
+#define DIGITAL_READ 		'R'
+#define DIGITAL_WRITE 		'W'
+#define ANALOG_READ			'A'
+#define CONFIG_PIN			'C'
+#define DIGITAL_BROADCAST	'D'
+#define ANALOG_BROADCAST	'B'
+
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
@@ -30,11 +40,19 @@ class ProcArduLib {
 private:
 	long pin;
 	long value;
+	char command;
 public:
 	ProcArduLib();
 	~ProcArduLib();
 	bool GetSerialData(char data);
-	void ProcessData();
+	bool ProcessData();
+	int GetCommand();
+	long GetPin();
+	long GetValue();
+	bool SendCommand(char command, long pin, long value);
+	bool SendBroadcast(char command);
+	void SendErrorMsg(const char * error);
+	
 };
 
 //#ifdef __cplusplus

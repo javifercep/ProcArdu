@@ -14,9 +14,20 @@ ProcArduLib                    KEYWORD1
 
 GetSerialData                  KEYWORD2
 ProcessData                    KEYWORD2
+GetCommand					   KEYWORD2
+GetPin						   KEYWORD2
+GetValue					   KEYWORD2
+SendCommand					   KEYWORD2
+SendBroadcast				   KEYWORD2
+SendErrorMsg				   KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
 #######################################
-
+DIGITAL_READ 				   LITERAL1
+DIGITAL_WRITE 				   LITERAL1
+ANALOG_READ					   LITERAL1
+CONFIG_PIN					   LITERAL1
+DIGITAL_BROADCAST			   LITERAL1
+ANALOG_BROADCAST			   LITERAL1
 

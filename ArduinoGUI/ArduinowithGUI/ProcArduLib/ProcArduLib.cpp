@@ -15,9 +15,10 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-const long Analog[NUMANPINS] = {A0,A1,A2,A3,A4,A5};
 static String inputString;
 static boolean stringComplete;
+static long Analog[NUMANPINS] = {A0,A1,A2,A3,A4,A5};
+static long Digital[NUMDIGPINS];
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
@@ -26,6 +27,8 @@ ProcArduLib::ProcArduLib()
 {
 	inputString = "";
 	stringComplete = false;
+	for(int i = 0; i < NUMDIGPINS; i++)
+		Digital[i]=i;
 }
 
 ProcArduLib::~ProcArduLib()
@@ -57,102 +60,88 @@ bool ProcArduLib::GetSerialData(char data)
   * @param  None
   * @retval None
   */
-void ProcArduLib::ProcessData()
+bool ProcArduLib::ProcessData()
 {
+	bool ret = false;
 	if (stringComplete) {
-    char command = inputString.charAt(0);
-    switch(command)
-    {
-    case 'd':
-      pin = inputString.substring(1).toInt();
-      value = inputString.substring(inputString.indexOf('v')+1).toInt();
-#ifdef DEBUG
-      Serial.println(inputString.substring(inputString.indexOf('v')));
-      Serial.println(pin);
-      Serial.println(value);
-#endif
-      if(pin < 0 || pin > 13)
-      {
-        Serial.println("E:Invalid pin!:");
-        break;
-      }
-      if(value > 1 || value < 0)
-      {
-        Serial.println("E:Invalid value!:");
-        break;
-      } 
-      digitalWrite(pin, value);
-      break;
-    case 'a':
-      pin = inputString.substring(1).toInt();
-      value = inputString.substring(inputString.indexOf('v')+1).toInt();
-      if(pin < 0 || pin > 5)
-      {
-        Serial.println("E:Invalid pin!:");
-        break;
-      }
-      if(value > 1 || value < 0)
-      {
-        Serial.println("E:Invalid value!:");
-        break;
-      }
-      Serial.print("A:");
-	  Serial.print(pin);
-	  Serial.print(":");
-      Serial.print(analogRead(Analog[pin]));
-	  Serial.println(":");
-      break;
-    case 'p':
-      break;
-    case 'r':
-      pin = inputString.substring(1).toInt();
-      value = inputString.substring(inputString.indexOf('v')+1).toInt();
-      if(pin == 0 || pin > 13)
-      {
-        Serial.println("E:Invalid pin!:");
-        break;
-      }
-      if(value > 1 || value < 0)
-      {
-        Serial.println("E:Invalid value!:");
-        break;
-      }
-      Serial.print("R:");
-	  Serial.print(pin);
-	  Serial.print(":");
-      Serial.print(digitalRead(pin));
-	  Serial.println(":");
-      break;
-    case 'c':
-      pin = inputString.substring(1).toInt();
-      value = inputString.substring(inputString.indexOf('v')+1).toInt();
-      if(pin < 0 || pin > 13)
-      {
-        Serial.println("E:Invalid pin!");
-        break;
-      }
-      if(value > 1 || value < 0)
-      {
-        Serial.println("E:Invalid value!:");
-        break;
-      } 
-      pinMode(pin,value);
-      break;
-    default:
-      Serial.println("E:Invalid command!:");
-      break;
-    }
-
-    inputString = "";
+    command = inputString.charAt(0);
+	pin = inputString.substring(1).toInt();
+	value = inputString.substring(inputString.indexOf('v')+1).toInt();
+	inputString = "";
     stringComplete = false;
-  }
-  for(int ii = 0; ii < 6; ii++)
-  {
-	Serial.print("A:");
-	Serial.print(pin);
-	Serial.print(":");
-    Serial.print(analogRead(Analog[pin]));
-	Serial.println(":");
-  }
-  delay(100);
+	ret = true;
+	}
+	return ret;
+}
+
+int ProcArduLib::GetCommand()
+{
+	return command;
+}
+
+long ProcArduLib::GetPin()
+{
+	return pin;
+}
+
+long ProcArduLib::GetValue()
+{
+	return value;
+}
+
+bool ProcArduLib::SendCommand(char command, long pin, long value)
+{
+	bool ret = false;
+	if( pin >= 0 )
+	{
+		Serial.print(command);
+		Serial.print(":");
+		Serial.print(pin);
+		Serial.print(":");
+		Serial.print(value);
+		Serial.println(":");
+		ret = true;
+	}
+	return ret;
+}
+
+bool ProcArduLib::SendBroadcast(char command)
+{
+	bool ret = false;
+	switch(command)
+	{
+		case DIGITAL_BROADCAST:
+			Serial.print(command);
+			Serial.print(":");
+			Serial.print(NUMDIGPINS);
+			for(int i = 0; i < NUMDIGPINS; i++)
+			{
+				Serial.print(":");
+				Serial.print(digitalRead(Digital[i]));
+			}
+			Serial.println(":");
+			ret = true;
+		break;
+		case ANALOG_BROADCAST:
+			Serial.print(command);
+			Serial.print(":");
+			Serial.print(NUMANPINS);
+			for(int i = 0; i < NUMANPINS; i++)
+			{
+				Serial.print(":");
+				Serial.print(analogRead(Analog[i]));
+			}
+			Serial.println(":");
+			ret = true;
+		break;
+		default:
+		break;
+	}
+	return ret;
+}
+
+void ProcArduLib::SendErrorMsg(const char * error)
+{
+	Serial.print("E:0:0:");
+	Serial.println(error);
 }

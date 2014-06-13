@@ -96,6 +96,8 @@ public void controlEvent(ControlEvent theEvent) {
         DigitalButton = new Button[DIGITALPINSARDUINOUNO];
         ListaDigConf = new ListBox[DIGITALPINSARDUINOUNO];
         AnalogSlider = new Slider[ANALOGPINSARDUINOUNO];
+        AnalogButton = new Button[ANALOGPINSARDUINOUNO];
+
         Hard = new HWClass(DIGITALPINSARDUINOUNO, ANALOGPINSARDUINOUNO);
         int jj = 1;
         for (int ii = 0; ii < DIGITALPINSARDUINOUNO; ii++)
@@ -133,6 +135,7 @@ public void controlEvent(ControlEvent theEvent) {
         }
         for (int ii = 0; ii < ANALOGPINSARDUINOUNO; ii++)
         {
+
           AnalogSlider[ii] =   cp5.addSlider("Analog"+String.valueOf(ii))
             .setPosition(500 + (50*ii), 120)
               .setSize(20, 100)
@@ -142,7 +145,27 @@ public void controlEvent(ControlEvent theEvent) {
                       .setRange(0.00, 1023.00)
                         .setLock(true);
           Hard.setAnalogValue(ii, 0);
+          AnalogButton[ii] = cp5.addButton("An"+String.valueOf(ii))
+            .setPosition(495 + (50*ii), 250)
+              .setSize(30, 20)
+                .setColorBackground(color(200, 150, 60))
+                  .setColorActive(color(100, 100, 30))
+                    .setColorForeground(color(200, 150, 60));
         }
+        UpdateAllDig = cp5.addButton("Update_ALL_Digital")
+          .setPosition(35, 450)
+            .setSize(280, 50)
+              .setColorBackground(color(150, 200, 60))
+                .setColorActive(color(100, 100, 30))
+                  .setColorForeground(color(150, 200, 60));
+                  
+        UpdateAllAn = cp5.addButton("Update_ALL_Analog")
+          .setPosition(495, 290)
+            .setSize(280, 50)
+              .setColorBackground(color(150, 200, 60))
+                .setColorActive(color(100, 100, 30))
+                  .setColorForeground(color(150, 200, 60));
+        openConfig = true;
         break;
       case 1:
         break;
@@ -154,12 +177,12 @@ public void controlEvent(ControlEvent theEvent) {
       String pin = theEvent.name().substring(7);
       int config=(int)theEvent.group().value();
       Hard.setDigitalState(Integer.parseInt(pin), config);
-      myPort.write('c'+pin+'v'+String.valueOf(config)+'\n');
+      myPort.write('C'+pin+'v'+String.valueOf(config)+'\n');
     } else if (theEvent.name().startsWith("Analog"))
     {
       //Nothing
     }
-  } else
+  } else if (theEvent.isController() == true)
   {
     if (theEvent.getName().startsWith("DigBut"))
     {
@@ -167,11 +190,11 @@ public void controlEvent(ControlEvent theEvent) {
       if (DigitalButton[Integer.parseInt(pin)].isOn() == true)
       {
         Hard.setDigitalValue(Integer.parseInt(pin), HIGH);
-        myPort.write('d'+pin+"v1\n");
+        myPort.write('W'+pin+"v1\n");
       } else
       {
         Hard.setDigitalValue(Integer.parseInt(pin), LOW);
-        myPort.write('d'+pin+"v0\n");
+        myPort.write('W'+pin+"v0\n");
       }
     }
   }
@@ -181,17 +204,45 @@ void InterfaceUpdate()
 {
   if (Hard != null)
   {
-    if (Hard.getDigitalState(digitalIndex) == INPUT)
-    {
-      myPort.write('r'+String.valueOf(digitalIndex)+"v0\n");
-    }
-    myPort.write('a'+String.valueOf(analogIndex)+"v0\n");
-    digitalIndex++;
-    if (digitalIndex == DIGITALPINSARDUINOUNO)
-      digitalIndex = 0;
-    analogIndex++;
-    if (analogIndex == ANALOGPINSARDUINOUNO)
-      analogIndex=0;
   }
 }
 
+public void An0(int Value)
+{
+  myPort.write("A0v0\n");
+}
+
+public void An1(int Value)
+{
+  myPort.write("A1v0\n");
+}
+
+public void An2(int Value)
+{
+  myPort.write("A2v0\n");
+}
+
+public void An3(int Value)
+{
+  myPort.write("A3v0\n");
+}
+
+public void An4(int Value)
+{
+  myPort.write("A4v0\n");
+}
+
+public void An5(int Value)
+{
+  myPort.write("A5v0\n");
+}
+
+public void Update_ALL_Analog(int Value)
+{
+  myPort.write("B255v0\n");
+}
+
+public void Update_ALL_Digital(int Value)
+{
+  myPort.write("D255v0\n");
+}
