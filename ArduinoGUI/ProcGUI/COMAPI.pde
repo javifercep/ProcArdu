@@ -70,7 +70,7 @@ public class COMAPI {
     }
     for (int ii=0; ii < DIGITALPINSARDUINOUNO; ii++)
     {
-      if (Hard.getDigitalState(ii) != NOT_CONF)
+      if (Hard.getDigitalState(ii) == INPUT || Hard.getDigitalState(ii) == INPUT_PULLUP)
       {
         if (Hard.getDigitalValue(ii) == HIGH)
           DigitalButton[ii].setOn();

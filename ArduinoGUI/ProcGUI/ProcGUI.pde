@@ -7,12 +7,12 @@ String dataReceived;
 COMAPI COM = new COMAPI();
 
 ControlP5 cp5;
-Textarea ErrorArea;
+Textarea ErrorArea, AutomaticMode;
 Textfield Escribo;
 ListBox ListaUSB, ListaConfig, ListaDigConf[];
-Slider  AnalogSlider[];
+Slider  AnalogSlider[], UpdateRate;
 Button DigitalButton[], AnalogButton[];
-Button UpdateAllAn, UpdateAllDig;
+Button UpdateAllAn, UpdateAllDig, AutoModeButton;
 HWClass Hard;
 boolean conected=false;
 boolean openConfig = false;
@@ -31,7 +31,7 @@ void draw() {
     COM.showData();
   }
   InterfaceUpdate();
-  delay(100);
+  delay(DelayTime);
 }
 
 void serialEvent(Serial myPort) {

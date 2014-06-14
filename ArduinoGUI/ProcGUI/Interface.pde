@@ -1,4 +1,8 @@
 int digitalIndex, analogIndex;
+boolean AutoModeOn = false;
+int SendAnalog = 0;
+volatile String commandMsg = null;
+int DelayTime = 100;
 
 void setInterface()
 {
@@ -14,6 +18,16 @@ void setInterface()
             .setColor(color(200, 20, 0))
               .setColorBackground(color(255, 100))
                 .setColorForeground(color(255));
+
+  AutomaticMode = cp5.addTextarea("Auto")
+    .setPosition(275, 30)
+      .setSize(250, 40)
+        .setFont(createFont("arial", 18))
+          .setLineHeight(18)
+            .setColor(color(30, 200, 20))
+              .setColorBackground(0)
+                .setColorForeground(0)
+                  .setText("Automatic Mode Off");
 
   Escribo=cp5.addTextfield("input")
     .setPosition(580, 560)
@@ -66,6 +80,23 @@ void setInterface()
   ListaConfig.actAsPulldownMenu(true);
   ListaConfig.addItem("Arduino UNO", 0).setColorBackground(color(100));
   ListaConfig.addItem("Custom", 1).setColorBackground(color(100));
+
+  AutoModeButton = cp5.addButton("AutoModeButton")
+    .setPosition(450, 25)
+      .setSize(90, 30)
+        .setColorBackground(color(30, 200, 20))
+          .setColorActive(color(40, 200, 60))
+            .setColorForeground(color(200, 200, 60))
+              .lock();
+
+  UpdateRate =  cp5.addSlider("Update_Rate")
+    .setPosition(270, 60)
+      .setSize(180, 20)
+        .setColorBackground(color(40, 200, 60))
+          .setColorActive(color(200, 200, 60))
+            .setColorForeground(color(200, 200, 60))
+              .setRange(20.00, 100.00)
+                .setLock(true);
 }
 
 public void controlEvent(ControlEvent theEvent) {
@@ -90,6 +121,8 @@ public void controlEvent(ControlEvent theEvent) {
     } else if (theEvent.name().equals("config"))
     {
       int valorConf=(int)theEvent.group().value();
+      AutoModeButton.unlock();
+      UpdateRate.unlock();
       switch(valorConf)
       {
       case 0:
@@ -158,7 +191,7 @@ public void controlEvent(ControlEvent theEvent) {
               .setColorBackground(color(150, 200, 60))
                 .setColorActive(color(100, 100, 30))
                   .setColorForeground(color(150, 200, 60));
-                  
+
         UpdateAllAn = cp5.addButton("Update_ALL_Analog")
           .setPosition(495, 290)
             .setSize(280, 50)
@@ -177,7 +210,7 @@ public void controlEvent(ControlEvent theEvent) {
       String pin = theEvent.name().substring(7);
       int config=(int)theEvent.group().value();
       Hard.setDigitalState(Integer.parseInt(pin), config);
-      myPort.write('C'+pin+'v'+String.valueOf(config)+'\n');
+      commandMsg = 'C'+pin+'v'+String.valueOf(config)+'\n';
     } else if (theEvent.name().startsWith("Analog"))
     {
       //Nothing
@@ -187,14 +220,17 @@ public void controlEvent(ControlEvent theEvent) {
     if (theEvent.getName().startsWith("DigBut"))
     {
       String pin = theEvent.getName().substring(6);
-      if (DigitalButton[Integer.parseInt(pin)].isOn() == true)
+      if (Hard.getDigitalState(Integer.parseInt(pin))==OUTPUT)
       {
-        Hard.setDigitalValue(Integer.parseInt(pin), HIGH);
-        myPort.write('W'+pin+"v1\n");
-      } else
-      {
-        Hard.setDigitalValue(Integer.parseInt(pin), LOW);
-        myPort.write('W'+pin+"v0\n");
+        if (DigitalButton[Integer.parseInt(pin)].isOn() == true)
+        {
+          Hard.setDigitalValue(Integer.parseInt(pin), HIGH);
+          commandMsg = 'W'+pin+"v1\n";
+        } else
+        {
+          Hard.setDigitalValue(Integer.parseInt(pin), LOW);
+          commandMsg = 'W'+pin+"v0\n";
+        }
       }
     }
   }
@@ -202,47 +238,115 @@ public void controlEvent(ControlEvent theEvent) {
 
 void InterfaceUpdate()
 {
-  if (Hard != null)
+  String commandAux = null;
+
+  if (AutoModeOn)
   {
+    switch(SendAnalog)
+    {
+    case 0:
+      commandAux = "B255v0\n";
+      SendAnalog++;
+      break;
+    case 1:
+      commandAux = "D255v0\n";
+      SendAnalog++;
+      break;
+    case 2:
+      if (commandMsg != null)
+      {
+        commandAux = commandMsg;
+        commandMsg = null;
+      }
+      SendAnalog = 0;
+      break;
+    default:
+      break;
+    }
+    if (commandAux!=null)
+      myPort.write(commandAux);
+  } else
+  {
+    if (Hard != null)
+    {
+      if (commandMsg != null)
+      {
+        myPort.write(commandMsg);
+        commandMsg = null;
+      }
+    }
   }
 }
 
 public void An0(int Value)
 {
-  myPort.write("A0v0\n");
+  commandMsg = "A0v0\n";
 }
 
 public void An1(int Value)
 {
-  myPort.write("A1v0\n");
+  commandMsg = "A1v0\n";
 }
 
 public void An2(int Value)
 {
-  myPort.write("A2v0\n");
+  commandMsg = "A2v0\n";
 }
 
 public void An3(int Value)
 {
-  myPort.write("A3v0\n");
+  commandMsg = "A3v0\n";
 }
 
 public void An4(int Value)
 {
-  myPort.write("A4v0\n");
+  commandMsg = "A4v0\n";
 }
 
 public void An5(int Value)
 {
-  myPort.write("A5v0\n");
+  commandMsg = "A5v0\n";
 }
 
 public void Update_ALL_Analog(int Value)
 {
-  myPort.write("B255v0\n");
+  commandMsg = "B255v0\n";
 }
 
 public void Update_ALL_Digital(int Value)
 {
-  myPort.write("D255v0\n");
+  commandMsg = "D255v0\n";
 }
+
+public void AutoModeButton(int Value)
+{
+  if (AutoModeOn)
+  {
+    AutoModeOn = false;
+    AutomaticMode.setText("Automatic Mode Off");
+    if (UpdateAllDig != null)
+    {
+      UpdateAllDig.show();
+      UpdateAllAn.show();
+      for (int ii = 0; ii < ANALOGPINSARDUINOUNO; ii++)
+        AnalogButton[ii].show();
+    }
+  } else
+  {
+    AutoModeOn = true;
+    AutomaticMode.setText("Automatic Mode On");
+    if (UpdateAllDig != null)
+    {
+      UpdateAllDig.hide();
+      UpdateAllAn.hide();
+      for (int ii = 0; ii < ANALOGPINSARDUINOUNO; ii++)
+        AnalogButton[ii].hide();
+    }
+  }
+}
+
+public void Update_Rate(int Value)
+{
+  DelayTime = Value;
+}
+
