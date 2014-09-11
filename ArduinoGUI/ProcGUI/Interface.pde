@@ -3,6 +3,7 @@ boolean AutoModeOn = false;
 int SendAnalog = 0;
 volatile String commandMsg = null;
 int DelayTime = 100;
+int freq[] = new int[6];
 
 void setInterface()
 {
@@ -81,6 +82,13 @@ void setInterface()
   ListaConfig.addItem("Arduino UNO", 0).setColorBackground(color(100));
   ListaConfig.addItem("Custom", 1).setColorBackground(color(100));
 
+ClearButton = cp5.addButton("ClearButton")
+    .setPosition(515, 560)
+      .setSize(60, 40)
+        .setColorBackground(color(200, 30, 20))
+          .setColorActive(color(200, 30, 60))
+            .setColorForeground(color(200, 200, 60));
+              
   AutoModeButton = cp5.addButton("AutoModeButton")
     .setPosition(450, 25)
       .setSize(90, 30)
@@ -113,7 +121,7 @@ public void controlEvent(ControlEvent theEvent) {
         myPort.stop();
       }
       println("Conectando al puerto "+Puerto[valorCOM][0]);
-      myPort = new Serial(this, Puerto[valorCOM][0], 9600);
+      myPort = new Serial(this, Puerto[valorCOM][0], 115200);
       myPort.bufferUntil('\n');
       ListaConfig.show();
       println("CONECTADO");
@@ -130,6 +138,9 @@ public void controlEvent(ControlEvent theEvent) {
         ListaDigConf = new ListBox[DIGITALPINSARDUINOUNO];
         AnalogSlider = new Slider[ANALOGPINSARDUINOUNO];
         AnalogButton = new Button[ANALOGPINSARDUINOUNO];
+        PWMDutySlider = new Slider[6]; 
+        PWMFreqSlider = new Slider[6];
+
 
         Hard = new HWClass(DIGITALPINSARDUINOUNO, ANALOGPINSARDUINOUNO);
         int jj = 1;
@@ -198,6 +209,25 @@ public void controlEvent(ControlEvent theEvent) {
               .setColorBackground(color(150, 200, 60))
                 .setColorActive(color(100, 100, 30))
                   .setColorForeground(color(150, 200, 60));
+
+        for (int ii = 0; ii < 6; ii++)
+        {
+          PWMDutySlider[ii] =   cp5.addSlider("PWMDuty"+String.valueOf(ii))
+            .setPosition(450, 360  + (18*ii))
+              .setSize(80, 15)
+                .setColorBackground(color(200, 200, 60))
+                  .setColorActive(color(40, 200, 60))
+                    .setColorForeground(color(40, 200, 60))
+                      .setRange(0, 100);
+          PWMFreqSlider[ii] =   cp5.addSlider("PWMFreq"+String.valueOf(ii))
+            .setPosition(600, 360 + (18*ii))
+              .setSize(80, 15)
+                .setColorBackground(color(200, 200, 60))
+                  .setColorActive(color(40, 200, 60))
+                    .setColorForeground(color(40, 200, 60))
+                      .setRange(1, 10)
+                        .setNumberOfTickMarks(10);
+        }
         openConfig = true;
         break;
       case 1:
@@ -318,6 +348,11 @@ public void Update_ALL_Digital(int Value)
   commandMsg = "D255v0\n";
 }
 
+public void ClearButton(int Value)
+{
+  ErrorArea.setText("");
+}
+
 public void AutoModeButton(int Value)
 {
   if (AutoModeOn)
@@ -343,6 +378,66 @@ public void AutoModeButton(int Value)
         AnalogButton[ii].hide();
     }
   }
+}
+
+void PWMDuty0(float Value)
+{
+  myPort.write("Y0v" + Float.toString(Value/100*freq[0])+"\n");
+}
+void PWMFreq0(float Value)
+{
+  freq[0] = (int)(1/Value*10);
+  myPort.write("F0v" + Integer.toString(freq[0])+"\n");
+}
+
+void PWMDuty1(float Value)
+{
+  myPort.write("Y1v" + Float.toString(Value/100*freq[1])+"\n");
+}
+void PWMFreq1(float Value)
+{
+  freq[1] = (int)(1/Value*10);
+  myPort.write("F1v" + Integer.toString(freq[1])+"\n");
+}
+
+void PWMDuty2(float Value)
+{
+  myPort.write("Y2v" + Float.toString(Value/100*freq[2])+"\n");
+}
+void PWMFreq2(float Value)
+{
+  freq[2] = (int)(1/Value*10);
+  myPort.write("F2v" + Integer.toString(freq[2])+"\n");
+}
+
+void PWMDuty3(float Value)
+{
+  myPort.write("Y3v" + Float.toString(Value/100*freq[3])+"\n");
+}
+void PWMFreq3(float Value)
+{
+  freq[3] = (int)(1/Value*10);
+  myPort.write("F3v" + Integer.toString(freq[3])+"\n");
+}
+
+void PWMDuty4(float Value)
+{
+  myPort.write("Y4v" + Float.toString(Value/100*freq[4])+"\n");
+}
+void PWMFreq4(float Value)
+{
+  freq[4] = (int)(1/Value*10);
+  myPort.write("F4v" + Integer.toString(freq[4])+"\n");
+}
+
+void PWMDuty5(float Value)
+{
+  myPort.write("Y5v" + Float.toString(Value/100*freq[5])+"\n");
+}
+void PWMFreq5(float Value)
+{
+  freq[5] = (int)(1/Value*10);
+  myPort.write("F5v" + Integer.toString(freq[5])+"\n");
 }
 
 public void Update_Rate(int Value)

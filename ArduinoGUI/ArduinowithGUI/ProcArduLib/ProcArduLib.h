@@ -22,7 +22,9 @@
 
 #define NUMANPINS		6
 #define NUMDIGPINS		14
+#define NUMPWM			6
 #define PINBROADCAST	0xFF
+#define MAXPWMFREQCOUNT 50
 
 /* COMMANDS Defines */
 #define DIGITAL_READ 		'R'
@@ -31,6 +33,8 @@
 #define CONFIG_PIN			'C'
 #define DIGITAL_BROADCAST	'D'
 #define ANALOG_BROADCAST	'B'
+#define PWM_DUTYCYCLE		'Y'
+#define PWM_FREQ			'F'
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/

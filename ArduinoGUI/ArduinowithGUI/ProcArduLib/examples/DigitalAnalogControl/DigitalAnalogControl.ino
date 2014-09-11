@@ -1,12 +1,27 @@
+#include <TimerOne.h>
 #include "ProcArduLib.h"
 
 ProcArduLib ArduInterface;
 const int AnalogPins[NUMANPINS] = {
   A0,A1,A2,A3,A4,A5};
 
+const int PWMPins[NUMPWM] = {
+  3, 5, 6, 9, 10, 11};
+volatile int PWMFREQ[NUMPWM] = {
+  0, 0, 0, 0, 0, 0};
+volatile int PWMDC[NUMPWM] = {
+  0, 0, 0, 0, 0, 0};
+volatile int PWMCount[NUMPWM] = {
+  0, 0, 0, 0, 0, 0};
+
+
+volatile int TimeCount = 0;
+
 void setup()
 {
   Serial.begin(9600);
+  Timer1.initialize(100);
+  Timer1.attachInterrupt(TimeBase, 100);
 }
 
 void loop()
@@ -59,12 +74,20 @@ void loop()
       } 
       pinMode(pin,value);
       break;
-	case ANALOG_BROADCAST:
-		ArduInterface.SendBroadcast(ANALOG_BROADCAST);
-	break;
-	case DIGITAL_BROADCAST:
-		ArduInterface.SendBroadcast(DIGITAL_BROADCAST);
-	break;
+    case ANALOG_BROADCAST:
+      ArduInterface.SendBroadcast(ANALOG_BROADCAST);
+      break;
+    case DIGITAL_BROADCAST:
+      ArduInterface.SendBroadcast(DIGITAL_BROADCAST);
+      break;
+    case PWM_DUTYCYCLE:
+      pinMode(pin,OUTPUT);
+      PWMDC[pin] = value;
+      break;
+    case PWM_FREQ:
+      pinMode(pin,OUTPUT);
+      PWMFREQ[pin] = value;
+      break;
     default:
       ArduInterface.SendErrorMsg("Invalid command!");
       break;
@@ -81,6 +104,28 @@ void serialEvent()
       break;
   }
 }
+
+void TimeBase()
+{
+  for(int ii = 0; ii < NUMPWM; ii++)
+  {
+    if (PWMFREQ[ii] == PWMCount[ii])
+    {
+      digitalWrite(PWMPins[ii],HIGH);
+      PWMCount[ii] = -1;
+    }
+    if(PWMDC[ii] == TimeCount)
+    {
+      digitalWrite(PWMPins[ii],LOW);
+    }
+    PWMCount[ii]++;
+  }
+}
+
+
+
+
+
 
 
 
